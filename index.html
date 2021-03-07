@@ -1,0 +1,366 @@
+<html>    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>City of Minneapolis</title> 
+    
+    <style>
+        html,        
+        body {
+            background-color: #b7b7a4 !important;
+        }
+        
+        #mapDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+        
+        #homeDiv {
+            position: absolute;
+            top: 20px;
+            right: 22px;
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            color: #6e6e6e;
+            height: 32px;
+            width: 339px;
+            text-align: center;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .homepage {
+            font-size: 20px;
+            font-family: "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
+        
+        #measureDiv1 {
+            position: absolute;
+            top: 181px;
+            left: 23px;
+        }
+        
+        #measureDiv2 {
+            position: absolute;
+            top: 222px;
+            left: 23px;
+        }
+        
+        #measureDiv3 {
+            position: absolute;
+            top: 263px;
+            left: 23px;
+        }
+        
+        #editorDiv {
+            position: absolute;
+            top: 50px;
+            right: 15px;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+        }
+        
+        #editorDiv_controls_content {
+            top: 0px;
+            right: 33px;
+        }
+        
+        .esri-widget--button {
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            color: #6e6e6e;
+            height: 32px;
+            width: 32px;
+            text-align: center;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+        }
+        
+    </style>
+    
+    <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.15/"></script>
+    
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/BasemapToggle",
+            "esri/widgets/Measurement",
+            "esri/widgets/Editor",
+            "esri/widgets/Locate",
+            "esri/widgets/Home",
+            "esri/widgets/Expand"
+        ], function (Map, MapView, FeatureLayer, BasemapToggle, Measurement, Editor, Locate, Home, Expand) {
+                        
+            var minneapolisBoundary = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Minneapolis_Boundary/FeatureServer",
+                id: "boundary",
+                opacity: 1.0
+            })
+            
+            var permitPolygons = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Contractor_Polygon/FeatureServer",
+                id: "polygons",
+                opacity: 0.7
+            });
+            
+            permitPolygons.title = "Applying for an Area"
+            
+            var polygonTemplate = {
+                title: "Sidewalk Construction Permit",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "ContractorName",
+                                label: "Name"
+                            }, 
+                            {
+                                fieldName: "ProjectName",
+                                label: "Project Name/#"
+                            },
+                            {
+                                fieldName: "ProjectType",
+                                label: "Project Type"
+                            },
+                            {
+                                fieldName: "ProjectDate", 
+                                label: "Project Date"
+                            },
+                            {
+                                fieldName: "WorkQuantities", 
+                                label: "Work Quantities"
+                            }
+                        ]
+                    }    
+                ]
+            };
+            
+            permitPolygons.popupTemplate = polygonTemplate;
+                        
+            var permitLines = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Contractor_Lines/FeatureServer",
+                id: "lines",
+                opacity: 0.7
+            });
+            
+            permitLines.title = "Applying for Various Locations"
+            
+            var lineTemplate = {
+                title: "Sidewalk Construction Permit",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "ContractorName",
+                                label: "Name"
+                            }, 
+                            {
+                                fieldName: "ProjectName",
+                                label: "Project Name/#"
+                            },
+                            {
+                                fieldName: "ProjectType",
+                                label: "Project Type"
+                            },
+                            {
+                                fieldName: "ProjectDate", 
+                                label: "Project Date"
+                            },
+                            {
+                                fieldName: "WorkQuantities", 
+                                label: "Work Quantities"
+                            }
+                        ]
+                    }    
+                ]
+            };
+            
+            permitLines.popupTemplate = lineTemplate;
+            
+            var permitPoints = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Contractor_Points/FeatureServer",
+                id: "points",
+                opacity: 0.7
+            });
+            
+            permitPoints.title = "Applying for a Single Location"
+            
+            var pointTemplate = {
+                title: "Sidewalk Construction Permit",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "ContractorName",
+                                label: "Name"
+                            }, 
+                            {
+                                fieldName: "ProjectName",
+                                label: "Project Name/#"
+                            },
+                            {
+                                fieldName: "ProjectType",
+                                label: "Project Type"
+                            },
+                            {
+                                fieldName: "ProjectDate", 
+                                label: "Project Date"
+                            },
+                            {
+                                fieldName: "WorkQuantities", 
+                                label: "Work Quantities"
+                            }
+                        ]
+                    }    
+                ]
+            };
+            
+            permitPoints.popupTemplate = pointTemplate;
+                        
+            var map = new Map({
+                basemap: "topo-vector",
+                layers: [minneapolisBoundary, permitPolygons, permitLines, permitPoints]
+            }); 
+           
+            var view = new MapView({
+                container: "mapDiv",
+                map: map,
+                center: [-93.2650, 44.970],
+                zoom: 12
+            });
+            
+            view.popup.dockOptions = {
+                position: "bottom-right"
+            };
+            
+            var homeBtn = new Home({
+                view: view,
+            });
+            
+            view.ui.add(homeBtn, "top-left");
+                        
+            var locateBtn = new Locate({
+                view: view
+            });
+            
+            view.ui.add(locateBtn, "top-left");
+    
+            var measurement = new Measurement({
+                view: view,
+                linearUnit: "feet",
+                areaUnit: "square-feet"
+            });
+            
+            var distanceButton = document.getElementById('distance');
+            var areaButton = document.getElementById('area');
+            var clearButton = document.getElementById('clear');
+            
+            distanceButton.addEventListener("click", function(){
+                distanceMeasurement();
+            });
+            
+            areaButton.addEventListener("click", function(){
+                areaMeasurement();
+            });
+            
+            clearButton.addEventListener("click", function(){
+                clearMeasurement();
+            });
+            
+            function distanceMeasurement() {
+                measurement.activeTool = "distance";
+                distanceButton.classList.add("active");
+                areaButton.classList.remove("active");
+            };
+            
+            function areaMeasurement() {
+                measurement.activeTool = "area";
+                distanceButton.classList.remove("active");
+                areaButton.classList.add("active");
+            };
+            
+            function clearMeasurement() {
+                distanceButton.classList.remove("active");
+                areaButton.classList.remove("active");
+                measurement.clear();
+            };
+            
+            view.ui.add(measurement, "bottom-right");
+            
+            var basemapToggle = new BasemapToggle({
+                view: view,
+                nextBasemap: "hybrid"
+            });
+            
+            view.ui.add(basemapToggle, "bottom-left");
+                        
+            var homepageDiv = document.getElementById("homeDiv");
+            
+            var editorWidget = new Editor({
+                view: view,
+                container: document.createElement("div"),
+            });
+            
+            editorWidget.viewModel.watch('state', function(state){
+            if(state === 'ready'){
+                setTimeout(function(){
+                    document.getElementsByClassName('esri-editor__title esri-heading')[0].innerHTML = 'Apply for a Permit';
+                    var actions = document.getElementsByClassName("esri-editor__feature-list-name");
+                    Array.from(actions).forEach(function(ele){
+                        if(ele.innerHTML==='Edit feature'){
+                            ele.innerHTML = 'Edit Existing Permit';
+                        }
+                        if(ele.innerHTML==='Add feature'){
+                            ele.innerHTML = 'Create New Permit';
+                        }
+                    });                    
+                }, 50);
+            }
+                
+            });
+            
+            var editorExpand = new Expand({
+                view: view,
+                content: editorWidget.domNode,
+                container: "editorDiv",
+                expandIconClass: "esri-icon-edit",
+            });
+            
+            view.ui.add(editorExpand, "manual");
+
+        });
+    </script>
+    
+</head>
+
+<body>
+    <div>
+        <div id="mapDiv"></div>
+        <div id="homeDiv">
+            <span class="homepage">Home</span>
+        </div>
+        <div id="editorDiv"></div>
+        <div id="measureDiv1" class="esri-component esri-widget">
+            <button id="distance" class="esri-widget--button esri-interactive esri-icon-measure-line" title="Distance Measurement Tool">
+            </button>
+        </div>
+        <div id="measureDiv2" class="esri-component esri-widget">
+            <button id="area" class="esri-widget--button esri-interactive esri-icon-measure-area" title="Area Measurement Tool">
+            </button>
+        </div>
+        <div id="measureDiv3" class="esri-component esri-widget">
+            <button id="clear" class="esri-widget--button esri-interactive esri-icon-trash" title="Clear Measurements">
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>
