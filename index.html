@@ -11,22 +11,37 @@
             background-color: #b7b7a4 !important;
         }
         
-        #mapDiv {
-            padding: 0;
-            margin: 0;
-            height: 100%;
+        #titleDiv {
+            height: 15%;
             width: 100%;
-        }
-        
-        #homeDiv {
-            position: absolute;
-            top: 20px;
-            right: 22px;
             background-color: #fff;
             border: 1px solid #d3d3d3;
             color: #6e6e6e;
-            height: 32px;
-            width: 339px;
+            font-size: 22px;
+            font-family: Georgia, serif;
+            text-align: center;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 10px;            
+        }
+        
+        #applicationDiv {
+            width: 100%;
+            height: 77%;
+            background-image: url("lib/background_vector_blur.jpg");
+        }
+        
+        #inspectorDiv {
+            position: absolute;
+            top: 30%;
+            left: 3%;
+            height: 60px;
+            width: 94%;
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            color: #6e6e6e;
             text-align: center;
             box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; 
             display: flex;
@@ -34,334 +49,81 @@
             align-items: center;
         }
         
-        .homepage {
-            font-size: 20px;
-            font-family: "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
-        }
-        
-        #measureDiv1 {
+        #contractorDiv {
             position: absolute;
-            top: 181px;
-            left: 23px;
-        }
-        
-        #measureDiv2 {
-            position: absolute;
-            top: 222px;
-            left: 23px;
-        }
-        
-        #measureDiv3 {
-            position: absolute;
-            top: 263px;
-            left: 23px;
-        }
-        
-        #editorDiv {
-            position: absolute;
-            top: 50px;
-            right: 15px;
-            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
-        }
-        
-        #editorDiv_controls_content {
-            top: 0px;
-            right: 32px;
-        }
-         
-        .esri-widget--button {
+            top: 20%;
+            left: 3%;
+            height: 60px;
+            width: 94%;
             background-color: #fff;
             border: 1px solid #d3d3d3;
             color: #6e6e6e;
-            height: 32px;
-            width: 32px;
             text-align: center;
-            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
         
+        #infoDiv {
+            position: absolute;
+            top: 40%;
+            left: 3%;
+            height: 45%;
+            width: 94%;
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            color: #6e6e6e;
+            text-align: center;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; 
+            padding-top: 30px;
+            
+        }
+        
+        #contactDiv {
+            position:absolute;
+            bottom: 10px;
+            width: 98%;
+            margin: 5px;
+            background-color: #b7b7a4;
+            color: #6e6e6e;
+            font-size: 12px;
+            font-family: Helvetica;
+            text-align: center;
+        }
+        
+        a:hover, a:visited, a:link, a:active {
+            color: #6e6e6e;
+            font-size: 18px;
+            font-family: "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
+            text-decoration: none;             
+        }
     </style>
     
     <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/light/main.css">
     <script src="https://js.arcgis.com/4.15/"></script>
     
-    <script>
-        require([
-            "esri/Map",
-            "esri/views/MapView",
-            "esri/layers/FeatureLayer",
-            "esri/widgets/BasemapToggle",
-            "esri/widgets/Measurement",
-            "esri/widgets/Editor",
-            "esri/widgets/Locate",
-            "esri/widgets/Home",
-            "esri/widgets/Expand"
-        ], function (Map, MapView, FeatureLayer, BasemapToggle, Measurement, Editor, Locate, Home, Expand) {
-                        
-            var minneapolisBoundary = new FeatureLayer({
-                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Minneapolis_Boundary/FeatureServer",
-                id: "boundary",
-                opacity: 1.0
-            })
-            
-            var permitPolygons = new FeatureLayer({
-                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Contractor_Polygon/FeatureServer",
-                id: "polygons",
-                opacity: 0.7
-            });
-            
-            permitPolygons.title = "Applying for an Area"
-            
-            var polygonTemplate = {
-                title: "Sidewalk Construction Permit",
-                content: [
-                    {
-                        type: "fields",
-                        fieldInfos: [
-                            {
-                                fieldName: "ContractorName",
-                                label: "Contractor"
-                            }, 
-                            {
-                                fieldName: "ProjectName",
-                                label: "Project Name/#"
-                            },
-                            {
-                                fieldName: "ProjectType",
-                                label: "Project Type"
-                            },
-                            {
-                                fieldName: "ProjectDate", 
-                                label: "Project Date"
-                            },
-                            {
-                                fieldName: "WorkQuantities", 
-                                label: "Work Quantities"
-                            }
-                        ]
-                    }    
-                ]
-            };
-            
-            permitPolygons.popupTemplate = polygonTemplate;
-                        
-            var permitLines = new FeatureLayer({
-                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Contractor_Lines/FeatureServer",
-                id: "lines",
-                opacity: 0.7
-            });
-            
-            permitLines.title = "Applying for Various Locations"
-            
-            var lineTemplate = {
-                title: "Sidewalk Construction Permit",
-                content: [
-                    {
-                        type: "fields",
-                        fieldInfos: [
-                            {
-                                fieldName: "ContractorName",
-                                label: "Contractor"
-                            }, 
-                            {
-                                fieldName: "ProjectName",
-                                label: "Project Name/#"
-                            },
-                            {
-                                fieldName: "ProjectType",
-                                label: "Project Type"
-                            },
-                            {
-                                fieldName: "ProjectDate", 
-                                label: "Project Date"
-                            },
-                            {
-                                fieldName: "WorkQuantities", 
-                                label: "Work Quantities"
-                            }
-                        ]
-                    }    
-                ]
-            };
-            
-            permitLines.popupTemplate = lineTemplate;
-            
-            var permitPoints = new FeatureLayer({
-                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Contractor_Points/FeatureServer",
-                id: "points",
-                opacity: 0.7
-            });
-            
-            permitPoints.title = "Applying for a Single Location"
-            
-            var pointTemplate = {
-                title: "Sidewalk Construction Permit",
-                content: [
-                    {
-                        type: "fields",
-                        fieldInfos: [
-                            {
-                                fieldName: "ContractorName",
-                                label: "Contractor"
-                            }, 
-                            {
-                                fieldName: "ProjectName",
-                                label: "Project Name/#"
-                            },
-                            {
-                                fieldName: "ProjectType",
-                                label: "Project Type"
-                            },
-                            {
-                                fieldName: "ProjectDate", 
-                                label: "Project Date"
-                            },
-                            {
-                                fieldName: "WorkQuantities", 
-                                label: "Work Quantities"
-                            }
-                        ]
-                    }    
-                ]
-            };
-            
-            permitPoints.popupTemplate = pointTemplate;
-                        
-            var map = new Map({
-                basemap: "topo-vector",
-                layers: [minneapolisBoundary, permitPolygons, permitLines, permitPoints]
-            }); 
-           
-            var view = new MapView({
-                container: "mapDiv",
-                map: map,
-                center: [-93.2650, 44.970],
-                zoom: 12
-            });
-            
-            view.popup.dockOptions = {
-                position: "bottom-right"
-            };
-            
-            var homeBtn = new Home({
-                view: view,
-            });
-            
-            view.ui.add(homeBtn, "top-left");
-                        
-            var locateBtn = new Locate({
-                view: view
-            });
-            
-            view.ui.add(locateBtn, "top-left");
+    </head>
     
-            var measurement = new Measurement({
-                view: view,
-                linearUnit: "feet",
-                areaUnit: "square-feet"
-            });
-            
-            var distanceButton = document.getElementById('distance');
-            var areaButton = document.getElementById('area');
-            var clearButton = document.getElementById('clear');
-            
-            distanceButton.addEventListener("click", function(){
-                distanceMeasurement();
-            });
-            
-            areaButton.addEventListener("click", function(){
-                areaMeasurement();
-            });
-            
-            clearButton.addEventListener("click", function(){
-                clearMeasurement();
-            });
-            
-            function distanceMeasurement() {
-                measurement.activeTool = "distance";
-                distanceButton.classList.add("active");
-                areaButton.classList.remove("active");
-            };
-            
-            function areaMeasurement() {
-                measurement.activeTool = "area";
-                distanceButton.classList.remove("active");
-                areaButton.classList.add("active");
-            };
-            
-            function clearMeasurement() {
-                distanceButton.classList.remove("active");
-                areaButton.classList.remove("active");
-                measurement.clear();
-            };
-            
-            view.ui.add(measurement, "bottom-right");
-            
-            var basemapToggle = new BasemapToggle({
-                view: view,
-                nextBasemap: "hybrid"
-            });
-            
-            view.ui.add(basemapToggle, "bottom-left");
-                        
-            var homepageDiv = document.getElementById("homeDiv");
-            
-            var editorWidget = new Editor({
-                view: view,
-                container: document.createElement("div"),
-            });
-            
-            editorWidget.viewModel.watch('state', function(state){
-            if(state === 'ready'){
-                setTimeout(function(){
-                    document.getElementsByClassName('esri-editor__title esri-heading')[0].innerHTML = 'Apply for a Permit';
-                    var actions = document.getElementsByClassName("esri-editor__feature-list-name");
-                    Array.from(actions).forEach(function(ele){
-                        if(ele.innerHTML==='Edit feature'){
-                            ele.innerHTML = 'Edit Existing Permit';
-                        }
-                        if(ele.innerHTML==='Add feature'){
-                            ele.innerHTML = 'Create New Permit';
-                        }
-                    });                    
-                }, 50);
-            }
-                
-            });
-            
-            var editorExpand = new Expand({
-                view: view,
-                content: editorWidget.domNode,
-                container: "editorDiv",
-                expandIconClass: "esri-icon-edit",
-            });
-            
-            view.ui.add(editorExpand, "manual");
-
-        });
-    </script>
+    <body>
+        <div id="titleDiv">Welcome to the City of Minneapolis Sidewalk Permit Application
+        </div> 
+        
+        <div id="applicationDiv">
+            <div id="inspectorDiv">
+                <a href="inspector.html">For Inspectors</a>
+            </div>
+            <div id="contractorDiv">
+                <a href="contractor.html"> For Contractors</a>
+            </div>
+            <div id="infoDiv">Notice: Cold weather plans will no longer be required starting April 5, 2021.<br><br>Please update your insurance ACORD form.<br><br>Notice: Due to COVID-19, credit card payements over the phone for permit fees can only be taken Monday - Wednesday 9:00am - 2:00pm.</div>
+        </div>
+        
+        <div id="contactDiv">
+            Contact Sidewalk Inspections Monday - Friday, 7:00a-3:30p<br> 000-000-0000 or example@example.gov
+        </div>
     
-</head>
-
-<body>
-    <div>
-        <div id="mapDiv"></div>
-        <div id="homeDiv">
-            <span class="homepage">Home</span>
-        </div>
-        <div id="editorDiv"></div>
-        <div id="measureDiv1" class="esri-component esri-widget">
-            <button id="distance" class="esri-widget--button esri-interactive esri-icon-measure-line" title="Distance Measurement Tool">
-            </button>
-        </div>
-        <div id="measureDiv2" class="esri-component esri-widget">
-            <button id="area" class="esri-widget--button esri-interactive esri-icon-measure-area" title="Area Measurement Tool">
-            </button>
-        </div>
-        <div id="measureDiv3" class="esri-component esri-widget">
-            <button id="clear" class="esri-widget--button esri-interactive esri-icon-trash" title="Clear Measurements">
-            </button>
-        </div>
-    </div>
-</body>
-
+    </body>
+    
+    
 </html>

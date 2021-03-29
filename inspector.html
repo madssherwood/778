@@ -1,0 +1,434 @@
+<html>    
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Inspector View</title> 
+    
+    <style>
+        html,        
+        body {
+            height: 99%;
+            background-color: #b7b7a4 !important;
+        }
+        
+        #mapDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+        
+        #homeDiv {
+            position: absolute;
+            top: 20px;
+            right: 23px;
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            color: #6e6e6e;
+            height: 32px;
+            width: 338px;
+            text-align: center;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px; 
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        a:hover, a:visited, a:link, a:active {
+            font-size: 18px;
+            font-family: "Avenir Next W00","Helvetica Neue",Helvetica,Arial,sans-serif;
+            color: #6e6e6e;
+            text-decoration: none;             
+        }
+        
+        #editorDiv {
+            position: absolute;
+            top: 55px;
+            right: 15px;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+        }
+        
+        #editorDiv_controls_content {
+            top: 0px;
+            right: 32px;
+        }
+        
+        #searchDiv {
+            position: absolute;
+            top: 56px;
+            right: 57px;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+        }
+        
+        #searchDiv.esri-search.esri-widget.esri-component {
+            width: 297px;
+        }   
+        
+        #inspection-filter {
+            height: 120px;
+            width: 100%;
+            visibility: hidden;
+        }
+
+        .inspection-item {
+            width: 100%;
+            padding-top: 5px;
+            padding-bottom: 15px;
+            padding-left: 10px;
+            padding-right: 10px;
+            text-align: center;
+            vertical-align: baseline;
+            cursor: pointer;
+            height: 30px;
+        }
+
+        .inspection-item:hover {
+            background-color: #d3d3d3;
+        }
+        
+        .esri-widget--button {
+            background-color: #fff;
+            border: 1px solid #d3d3d3;
+            color: #6e6e6e;
+            height: 32px;
+            width: 32px;
+            text-align: center;
+            box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 2px;
+        }
+        
+    </style>
+    
+    <link rel="stylesheet" href="https://js.arcgis.com/4.15/esri/themes/light/main.css">
+    <script src="https://js.arcgis.com/4.15/"></script>
+    
+    <script>
+        require([
+            "esri/Map",
+            "esri/views/MapView",
+            "esri/layers/FeatureLayer",
+            "esri/widgets/BasemapToggle",
+            "esri/widgets/Editor",
+            "esri/widgets/Search",
+            "esri/widgets/Locate",
+            "esri/widgets/Home",
+            "esri/widgets/Expand"
+        ], function (Map, MapView, FeatureLayer, BasemapToggle, Editor, Search, Locate, Home, Expand) {
+                        
+            var minneapolisBoundary = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Minneapolis_Boundary/FeatureServer",
+                id: "boundary",
+                opacity: 1.0
+            })
+            
+            var permitPolygons = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Inspector_Neighborhood/FeatureServer",
+                id: "polygons",
+                opacity: 0.7,             
+            });
+            
+            permitPolygons.title = "Edit a Polygon Permit"
+            
+            var polygonTemplate = {
+                title: "Sidewalk Construction Permit",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "BLDGNUM",
+                                label: "BLDG #"
+                            },
+                            {
+                                fieldName: "ContractorName",
+                                label: "Contractor"
+                            }, 
+                            {
+                                fieldName: "ProjectName",
+                                label: "Project Name/#"
+                            },
+                            {
+                                fieldName: "ProjectType",
+                                label: "Project Type"
+                            },
+                            {
+                                fieldName: "ProjectDate", 
+                                label: "Project Date"
+                            },
+                            {
+                                fieldName: "WorkQuantities", 
+                                label: "Work Quantities"
+                            }
+                        ]   
+                    }    
+                ]
+            };
+            
+            permitPolygons.popupTemplate = polygonTemplate;
+                        
+            var permitLines = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Inspector_Street/FeatureServer",
+                id: "lines",
+                opacity: 0.7
+            });
+            
+            permitLines.title = "Edit a Line Permit"
+            
+            var lineTemplate = {
+                title: "Sidewalk Construction Permit",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "BLDGNUM",
+                                label: "BLDG #"
+                            },
+                            {
+                                fieldName: "ContractorName",
+                                label: "Contractor"
+                            }, 
+                            {
+                                fieldName: "ProjectName",
+                                label: "Project Name/#"
+                            },
+                            {
+                                fieldName: "ProjectType",
+                                label: "Project Type"
+                            },
+                            {
+                                fieldName: "ProjectDate", 
+                                label: "Project Date"
+                            },
+                            {
+                                fieldName: "WorkQuantities", 
+                                label: "Work Quantities"
+                            }
+                        ]
+                    }    
+                ]
+            };
+            
+            permitLines.popupTemplate = lineTemplate;
+            
+            var permitPoints = new FeatureLayer({
+                url: "https://services6.arcgis.com/Zz9rLy8hhX5ucrKI/arcgis/rest/services/Inspector_Address/FeatureServer",
+                id: "points",
+                opacity: 0.7
+            });
+            
+            permitPoints.title = "Edit a Point Permit"
+            
+            var pointTemplate = {
+                title: "Sidewalk Construction Permit",
+                content: [
+                    {
+                        type: "fields",
+                        fieldInfos: [
+                            {
+                                fieldName: "BLDGNUM",
+                                label: "BLDG #"
+                            },
+                            {
+                                fieldName: "ContractorName",
+                                label: "Contractor"
+                            }, 
+                            {
+                                fieldName: "ProjectName",
+                                label: "Project Name/#"
+                            },
+                            {
+                                fieldName: "ProjectType",
+                                label: "Project Type"
+                            },
+                            {
+                                fieldName: "ProjectDate", 
+                                label: "Project Date"
+                            },
+                            {
+                                fieldName: "WorkQuantities", 
+                                label: "Work Quantities"
+                            }
+                        ]
+                    }    
+                ]
+            };
+            
+            permitPoints.popupTemplate = pointTemplate;
+                        
+            var map = new Map({
+                basemap: "topo-vector",
+                layers: [minneapolisBoundary, permitPolygons, permitLines, permitPoints]
+            }); 
+           
+            var view = new MapView({
+                container: "mapDiv",
+                map: map,
+                center: [-93.2650, 44.970],
+                zoom: 12
+            });
+            
+            view.popup.dockOptions = {
+                position: "bottom-right"
+            };
+            
+            var homeBtn = new Home({
+                view: view,
+            });
+            
+            view.ui.add(homeBtn, "top-left");
+                        
+            var locateBtn = new Locate({
+                view: view
+            });
+            
+            view.ui.add(locateBtn, "top-left");
+            
+            var basemapToggle = new BasemapToggle({
+                view: view,
+                nextBasemap: "hybrid"
+            });
+            
+            view.ui.add(basemapToggle, "bottom-left");
+            
+            var searchWidget = new Search({
+                view: view,
+                container: "searchDiv"
+            });
+            
+            view.ui.add(searchWidget, "manual");
+            
+            var editorWidget = new Editor({
+                view: view,
+                container: document.createElement("div")
+            });
+            
+            editorWidget.viewModel.watch('state', function(state){
+            if(state === 'ready'){
+                setTimeout(function(){
+                    document.getElementsByClassName('esri-editor__title esri-heading')[0].innerHTML = 'Inspect a Permit';
+                    var actions = document.getElementsByClassName("esri-editor__feature-list-name");
+                    Array.from(actions).forEach(function(ele){
+                        if(ele.innerHTML==='Edit feature'){
+                            ele.innerHTML = 'Edit Existing Permit';
+                        }
+                        if(ele.innerHTML==='Add feature'){
+                            ele.innerHTML = 'Create New Permit';
+                        }
+                    });                    
+                }, 50);
+            }
+                
+            });
+            
+            var editorExpand = new Expand({
+                view: view,
+                content: editorWidget.domNode,
+                container: "editorDiv",
+                expandIconClass: "esri-icon-edit",
+            });
+            
+            view.ui.add(editorExpand, "manual");
+            
+            
+            var inspectionView;
+            var inspectionView2;
+            var inspectionView3;
+            
+            var inspectionNodes = document.querySelectorAll(".inspection-item");
+        
+            var inspectionElement = document.getElementById("inspection-filter");
+
+            inspectionElement.addEventListener("click", filterByInspectionResult);
+            
+            function filterByInspectionResult(event) {
+                var selectedResult = event.target.getAttribute("InspectionResult");
+                
+                if (selectedResult == "Complete") {
+                    inspectionView.filter = {
+                        where: "InspectionResult = 'Pass' OR InspectionResult = 'Fail'"
+                    };
+                    
+                    inspectionView2.filter = {
+                        where: "InspectionResult = 'Pass' OR InspectionResult = 'Fail'"
+                    };
+                    
+                    inspectionView3.filter = {
+                        where: "InspectionResult = 'Pass' OR InspectionResult = 'Fail'"
+                    };
+                    
+                } else {
+                    inspectionView.filter = {
+                        where: "InspectionResult = '" + selectedResult + "'"
+                    };
+                    
+                    inspectionView2.filter = {
+                        where: "InspectionResult = '" + selectedResult + "'"
+                    };
+                    
+                    inspectionView3.filter = {
+                        where: "InspectionResult = '" + selectedResult + "'"
+                    };
+                }  
+                
+            }
+             view.whenLayerView(permitPolygons).then(function (layerView) {
+          
+                inspectionView = layerView;
+                inspectionElement.style.visibility = "visible";
+                
+                var filterExpand = new Expand({
+                    view: view,
+                    content: inspectionElement,
+                    container: "filterDiv",
+                    expandIconClass: "esri-icon-filter"
+                });
+                
+                filterExpand.watch("expanded", function () {
+                    if (!filterExpand.expanded) {
+                        inspectionView.filter = null;
+                        
+                        inspectionView2.filter = null;
+                        
+                        inspectionView3.filter = null;
+                    }
+                });
+          
+                view.ui.add(filterExpand, "top-left");
+            });  
+            
+            view.whenLayerView(permitLines).then(function (layerView) {
+          
+                inspectionView2 = layerView;
+                inspectionElement.style.visibility = "visible";
+          
+            });  
+            
+            view.whenLayerView(permitPoints).then(function (layerView) {
+          
+                inspectionView3 = layerView;
+                inspectionElement.style.visibility = "visible";
+          
+            });  
+        });
+    </script>
+    
+</head>
+
+<body>
+    <div>
+        <div id="mapDiv"></div>
+        <div id="homeDiv" title="Switch to Contractor View">
+            <a href="contractor.html">City of Minneapolis Sidewalk Permits</a>
+        </div>
+        <div id="editorDiv" title="Add or Edit a Permit"></div>
+        <div id="searchDiv"></div>
+        <div id="inspection-filter" class="esri-widget">
+            <div class="inspection-item visible-system" InspectionResult="Pass">Pass</div>
+            <div class="inspection-item visible-system" InspectionResult="Fail">Fail</div>
+            <div class="inspection-item visible-system" InspectionResult="Complete">Complete</div>
+            <div class="inspection-item visible-system" InspectionResult="Incomplete">Incomplete</div>
+        </div>
+    </div>
+</body>
+
+</html>
